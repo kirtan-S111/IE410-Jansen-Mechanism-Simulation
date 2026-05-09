@@ -6,7 +6,7 @@ This repository contains the simulation, code, and report for **Part B: Simulati
 The objective of this project is to model and simulate a single degree-of-freedom (DoF) linkage mechanism driven by a single actuator to produce a natural, complex gait-like end-effector trajectory.
 
 ## Team: Group 21
-* **Kirtan Chaudhari** (20240101095)
+* **Kirtan Chaudhari** (202401095)
 * **Hingrajiya Khush** (202401068)
 * **Dharmesh Upadhyay** (202401049)
 * **Tasvi Bhalani** (202401027)
