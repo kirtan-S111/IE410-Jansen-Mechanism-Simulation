@@ -1,0 +1,140 @@
+<mujoco model="theo_jansen_v2">
+    <option gravity="0 0 -9.81" timestep="0.001" iterations="200" tolerance="1e-10"/>
+    <visual>
+        <global fovy="45"/>
+    </visual>
+    <worldbody>
+        <light pos="0 -2 0" dir="0 1 0" directional="true"/>
+
+        <!-- Ground plane positioned so the foot touches it at the lowest point of its trajectory.
+             Foot lowest Z ≈ -0.678, foot sphere radius = 0.015, so ground at -0.693 -->
+        <geom name="ground" type="plane" size="2 2 0.1" pos="0 0 -0.693"
+              rgba="0.9 0.9 0.9 1" contype="1" conaffinity="1" friction="1 0.005 0.0001"/>
+
+        <!-- White background plane far away -->
+        <geom name="white_bg" type="plane" size="5 5 0.1" pos="0 2 0"
+              axisangle="1 0 0 90" rgba="1 1 1 1" contype="0" conaffinity="0"/>
+
+        <!-- Fixed-point mount markers (black cylinders) -->
+        <geom type="cylinder" pos="0.000000 0.0 0.000000" size="0.015 0.015"
+              axisangle="1 0 0 90" rgba="0 0 0 1" contype="0" conaffinity="0"/>
+        <geom type="cylinder" pos="0.330000 0.0 0.000000" size="0.015 0.015"
+              axisangle="1 0 0 90" rgba="0 0 0 1" contype="0" conaffinity="0"/>
+
+        <!-- ======== CRANK ======== -->
+        <body name="crank" pos="0.000000 0.0 0.000000">
+            <joint name="joint_crank" type="hinge" pos="0 0 0" axis="0 1 0"
+                   damping="0.05" frictionloss="0.0"/>
+            <geom name="L1" type="capsule"
+                  fromto="0.000000 0.0 0.000000 0.110000 0.0 0.000000"
+                  size="0.008" rgba="1 0 0 1" contype="0" conaffinity="0"/>
+            <site name="s_P1" pos="0.110000 0.0 0.000000" size="0.01" rgba="1 0 0 1"/>
+
+            <!-- Link L2 (upper coupler) -->
+            <body name="link2" pos="0.110000 0.0 0.000000">
+                <joint name="joint_link2" type="hinge" pos="0 0 0" axis="0 1 0"
+                       damping="0.05" frictionloss="0.0"/>
+                <geom name="L2" type="capsule"
+                      fromto="0.000000 0.0 0.000000 0.275682 0.0 0.355668"
+                      size="0.008" rgba="0 0.75 1 1" contype="0" conaffinity="0"/>
+                <site name="s_P2_link2" pos="0.275682 0.0 0.355668" size="0.01" rgba="1 0 0 1"/>
+            </body>
+
+            <!-- Link L7 (lower coupler) -->
+            <body name="link7" pos="0.110000 0.0 0.000000">
+                <joint name="joint_link7" type="hinge" pos="0 0 0" axis="0 1 0"
+                       damping="0.05" frictionloss="0.0"/>
+                <geom name="L7" type="capsule"
+                      fromto="0.000000 0.0 0.000000 0.550455 0.0 -0.251047"
+                      size="0.008" rgba="0.2 0.8 0.2 1" contype="0" conaffinity="0"/>
+                <site name="s_P5_link7" pos="0.550455 0.0 -0.251047" size="0.01" rgba="1 0 0 1"/>
+            </body>
+        </body>
+
+        <!-- ======== LOWER ARM ======== -->
+        <body name="link8" pos="0.330000 0.0 0.000000">
+            <joint name="joint_link8" type="hinge" pos="0 0 0" axis="0 1 0"
+                   damping="0.05" frictionloss="0.0"/>
+            <geom name="L8" type="capsule"
+                  fromto="0.000000 0.0 0.000000 0.330455 0.0 -0.251047"
+                  size="0.008" rgba="0.12 0.56 1 1" contype="0" conaffinity="0"/>
+            <site name="s_P5_link8" pos="0.330455 0.0 -0.251047" size="0.01" rgba="1 0 0 1"/>
+
+            <!-- FOOT TRIANGLE (links L9, L11, L12) WITH FLIPPED PE -->
+            <body name="foot_tri" pos="0.330455 0.0 -0.251047">
+                <joint name="joint_foot_tri" type="hinge" pos="0 0 0" axis="0 1 0"
+                       damping="0.05" frictionloss="0.0"/>
+                <!-- L9: P5 to P6 -->
+                <geom name="L9" type="capsule"
+                      fromto="0.000000 0.0 0.000000 -0.406250 0.0 0.106588"
+                      size="0.008" rgba="0.85 0.65 0.13 1" contype="0" conaffinity="0"/>
+                <!-- L11: P5 to PE (corrected downwards) -->
+                <geom name="L11" type="capsule"
+                      fromto="0.000000 0.0 0.000000 -0.007470 0.0 -0.264895"
+                      size="0.008" rgba="0 0.75 1 1" contype="0" conaffinity="0"/>
+                <!-- L12: P6 to PE (corrected downwards) -->
+                <geom name="L12" type="capsule"
+                      fromto="-0.406250 0.0 0.106588 -0.007470 0.0 -0.264895"
+                      size="0.008" rgba="0.2 0.8 0.2 1" contype="0" conaffinity="0"/>
+                
+                <site name="s_P5_foot" pos="0.000000 0.0 0.000000" size="0.01" rgba="1 0 0 1"/>
+                <site name="s_P6_foot" pos="-0.406250 0.0 0.106588" size="0.01" rgba="1 0 0 1"/>
+                <site name="s_foot" pos="-0.007470 0.0 -0.264895" size="0.01" rgba="1 0 0 1"/>
+
+                <!-- FOOT CONTACT SPHERE -->
+                <geom name="foot_contact" type="sphere"
+                      pos="-0.007470 0.0 -0.264895" size="0.015"
+                      rgba="1 0.3 0.3 1" contype="1" conaffinity="1"
+                      friction="1.0 0.005 0.0001"/>
+            </body>
+        </body>
+
+        <!-- ======== COUPLER TRIANGLE ======== -->
+        <body name="coupler_tri" pos="0.330000 0.0 0.000000">
+            <joint name="joint_coupler_tri" type="hinge" pos="0 0 0" axis="0 1 0"
+                   damping="0.05" frictionloss="0.0"/>
+            <geom name="L3" type="capsule"
+                  fromto="0.000000 0.0 0.000000 0.055682 0.0 0.355668"
+                  size="0.008" rgba="0.58 0 0.83 1" contype="0" conaffinity="0"/>
+            <geom name="L6" type="capsule"
+                  fromto="0.000000 0.0 0.000000 -0.385384 0.0 0.153961"
+                  size="0.008" rgba="1 0.08 0.58 1" contype="0" conaffinity="0"/>
+            <geom name="L5" type="capsule"
+                  fromto="0.055682 0.0 0.355668 -0.385384 0.0 0.153961"
+                  size="0.008" rgba="1 0.65 0 1" contype="0" conaffinity="0"/>
+            <site name="s_P2_tri" pos="0.055682 0.0 0.355668" size="0.01" rgba="1 0 0 1"/>
+            <site name="s_P4_tri" pos="-0.385384 0.0 0.153961" size="0.01" rgba="1 0 0 1"/>
+
+            <!-- Link L10 -->
+            <body name="link10" pos="-0.385384 0.0 0.153961">
+                <joint name="joint_link10" type="hinge" pos="0 0 0" axis="0 1 0"
+                       damping="0.05" frictionloss="0.0"/>
+                <geom name="L10" type="capsule"
+                      fromto="0.000000 0.0 0.000000 0.309589 0.0 -0.298420"
+                      size="0.008" rgba="0.2 0.8 0.2 1" contype="0" conaffinity="0"/>
+                <site name="s_P6_link10" pos="0.309589 0.0 -0.298420" size="0.01" rgba="1 0 0 1"/>
+            </body>
+        </body>
+    </worldbody>
+
+    <!-- Closed-loop equality constraints -->
+    <equality>
+        <connect body1="link2" body2="coupler_tri"
+                 anchor="0.275682 0.0 0.355668" solref="0.01 1" solimp="0.95 0.99 0.001"/>
+        <connect body1="link7" body2="link8"
+                 anchor="0.550455 0.0 -0.251047" solref="0.01 1" solimp="0.95 0.99 0.001"/>
+        <connect body1="link10" body2="foot_tri"
+                 anchor="0.309589 0.0 -0.298420" solref="0.01 1" solimp="0.95 0.99 0.001"/>
+    </equality>
+
+    <actuator>
+        <!--
+            Continuous self-spinning motor (no control signal needed).
+            Force = gain*ctrl + bias[0] + bias[1]*position + bias[2]*velocity
+                  = 0*ctrl   + 3.14    + 0*pos            + (-1)*vel
+            Steady-state: velocity ≈ π rad/s ≈ 0.5 rev/s
+        -->
+        <general name="motor_crank" joint="joint_crank"
+                 gainprm="0" biastype="affine" biasprm="3.14159 0 -1"/>
+    </actuator>
+</mujoco>
